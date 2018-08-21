@@ -2,18 +2,18 @@
 
 ### Steps to get started:
 
-### Clone the repo
-``` 
+## Clone the repo
+```git 
    git clone git@github.com:dmitryro/vue-starter.git
 ```
 
-### Build the Docker containers
-``` 
+## Build the Docker containers
+```docker 
    docker-compose build
 ```
 
-### Start the Docker containers
-```
+## Start the Docker containers
+```docker
    docker-compose up
 ```
 
