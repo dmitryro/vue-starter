@@ -1,10 +1,41 @@
- path = require('path');
+path = require('path');
 const fs = require('fs');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { VueLoaderPlugin } = require('vue-loader')
 const NODE_ENV = process.env.NODE_ENV;
+
+function getPlugins() {
+    const plugins = [];
+
+    plugins.push(extractHTML);
+    plugins.push(new VueLoaderPlugin());
+    plugins.push(new MiniCssExtractPlugin({
+                    filename: "css/styles.[hash].css",
+                     chunkFilename: "[id].css"})); 
+    plugins.push(new webpack.DefinePlugin({
+                    'process.env': {
+                        isStaging: (NODE_ENV === 'development' || NODE_ENV === 'staging'),
+                        NODE_ENV: '"'+NODE_ENV+'"'
+                     }}));
+
+    if (process.env.NODE_ENV === "production") {
+        plugins.push(new webpack.optimize.UglifyJsPlugin({
+            minimize: true,
+            output: {
+                comments: false
+            },
+            compressor: {
+                warnings: false
+            }
+        }));
+    } else {
+        plugins.push(new webpack.HotModuleReplacementPlugin());
+    }
+
+    return plugins;
+}
 
 const setPath = function(folderName) {
   return path.join(__dirname, folderName);
@@ -78,24 +109,14 @@ const config = {
     host: '0.0.0.0',
     port: 8080,
     historyApiFallback: true,
-    noInfo: false
+    noInfo: false,
+    overlay: true,
+    hot: true,
+    watchOptions: {
+        poll: true
+    }
   },
-  plugins: [
-    extractHTML,
-    new VueLoaderPlugin(),
-    new MiniCssExtractPlugin({
-      // Options similar to the same options in webpackOptions.output
-      // both options are optional
-      filename: "css/styles.[hash].css",
-      chunkFilename: "[id].css"
-    }),
-    new webpack.DefinePlugin({
-      'process.env': {
-        isStaging: (NODE_ENV === 'development' || NODE_ENV === 'staging'),
-        NODE_ENV: '"'+NODE_ENV+'"'
-      }
-    })
-  ],
+  plugins: getPlugins(), 
   module: {
     rules: [
       {
@@ -110,6 +131,14 @@ const config = {
             js: 'babel-loader'
           }
         }
+      },
+      {
+          test: /\.styl(us)?$/,
+          use: [
+              'vue-style-loader',
+              'css-loader',
+              'stylus-loader'
+          ]
       },
       {
         test: /\.js$/,
