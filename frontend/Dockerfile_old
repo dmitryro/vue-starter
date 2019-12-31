@@ -1,0 +1,32 @@
+FROM node:alpine
+
+# Create app directory..
+COPY package.json /webapp/package.json
+ADD package.json /webapp/package.json
+# now most commands run from within there.
+
+ENV HOMEDIR=/webapp
+ENV PROJECTDIR=/webapp
+ENV FRONTENDDIR=/webapp
+
+# Copy frontend files
+WORKDIR $FRONTENDDIR
+COPY . .
+
+COPY package*.json ./
+RUN npm install -qy
+COPY . ./
+
+RUN \
+  apk update                     && \
+  apk add bash                   && \
+  npm install -G yarn typescript && \
+  npm install && \
+  yarn install && \
+  npm audit fix
+EXPOSE "8080:8080"
+
+
+
+
+

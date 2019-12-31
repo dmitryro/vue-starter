@@ -1,0 +1,4 @@
+
+> webpack-4-quickstart@1.0.0 start /Users/dmitry/Devel/med/django-two/vue/webpack4vue
+> cross-env NODE_ENV=development webpack-dev-server --inline --hot "=" "development"
+

@@ -1,29 +1,43 @@
-version: '3'
+version: '3.7'
 
 
 services:
-  web:
-    build:
-      context: ./web/
-      dockerfile: Dockerfile
-    command: npm start
+  frontend:
+    container_name: ${PROJECT_NAME}_frontend
+    build: ./frontend
+    #command: yarn add vue && yarn add vue-hot-reload-api vue-html-loader vue-loader vue-template-compiler --dev && 
+    command: yarn webpack-dev-server --host 0.0.0.0
+    #command: npm start
     volumes:
-      - ./webapp/:/usr/app
+      - ./frontend/:/usr/app
       - /usr/app/node_modules
     ports:
-      - "8080:8080"
-  
-
+      - 8080:8080
+    env_file:
+      - .env  
 
   nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
+    container_name: ${PROJECT_NAME}_nginx
+    image: nginx:latest
+    env_file:
+      - .env
     ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - web    
+      - 80:80
+      - 443:443
+    volumes:
+      - ./config/nginx/conf.d:/etc/nginx/conf.d
+      - static_volume:/opt/services/backend/static
+      - media_volume:/opt/services/backend/media
 
+  redis:
+    container_name: ${PROJECT_NAME}_redis
+    image: redis
+    env_file:
+      - .env
 
-
+volumes:
+  db_data:
+  nginx-logs:
+  static_volume:  # <-- declare the static volume
+  media_volume:  # <-- declare the media volume
+  redis-data:
